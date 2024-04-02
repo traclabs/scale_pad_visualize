@@ -11,7 +11,7 @@ roslaunch scale_pad_visualize visualize.launch
 ```
 
 There are three parameters provided for the launch file:
-* ``mesh`` (default: "$(find scale_pad_visualize)/stl/ros2.stl") - full path to a mesh file (eg. .stl, .dae):
+* ``mesh`` - full path to a mesh file (eg. .stl, .dae) (default: *$(find scale_pad_visualize)/stl/ros2.stl*)
 * ``scale`` (default: 1.0)
 * ``padding`` (default: 0.0)
 
