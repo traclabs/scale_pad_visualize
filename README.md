@@ -1,5 +1,9 @@
 # Visualization of scaling and padding of geometric_shapes
 
+Original mesh | Scaled and padded mesh
+:----:|:----:
+![](images/no-scale-pad.png) | ![](images/scaled-and-padded.png)
+
 To run:
 
 ```sh
