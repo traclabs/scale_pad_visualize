@@ -4,7 +4,7 @@
   <arg name="scale" default="1.0"/>
   <arg name="padding" default="0.0"/>
 
-  <node name="visualize" pkg="scale_pad_visualize" type="visualize_node">
+  <node name="visualize" pkg="scale_pad_visualize" type="visualize">
     <param name="mesh" value="$(arg mesh)"/>
     <param name="scale" value="$(arg scale)"/>
     <param name="padding" value="$(arg padding)"/>

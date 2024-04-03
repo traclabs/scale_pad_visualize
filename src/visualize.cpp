@@ -1,7 +1,8 @@
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
 #include <geometric_shapes/mesh_operations.h>
 #include <geometric_shapes/shape_operations.h>
+#include <ros/package.h>
+#include <ros/ros.h>
+#include <visualization_msgs/MarkerArray.h>
 
 visualization_msgs::Marker getEdgesMarker(const shapes::Mesh* mesh, int marker_id)
 {
@@ -33,7 +34,7 @@ visualization_msgs::Marker getFacesMarker(const shapes::Mesh* mesh, int marker_i
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "visualize_covariance_intersection");
+  ros::init(argc, argv, "visualize");
   ros::NodeHandle nh;
   auto markers_pub = nh.advertise<visualization_msgs::MarkerArray>("marker", 10, true);
   visualization_msgs::MarkerArray markers;
@@ -41,8 +42,9 @@ int main(int argc, char** argv)
   while (ros::ok())
   {
     // Load parameters
-    double scale, padding;
-    std::string mesh_file;
+    double scale = 1.0;
+    double padding = 0.0;
+    std::string mesh_file = ros::package::getPath("scale_pad_visualize") + "/stl/ros2.stl";
     ros::param::get("~scale", scale);
     ros::param::get("~padding", padding);
     ros::param::get("~mesh", mesh_file);
