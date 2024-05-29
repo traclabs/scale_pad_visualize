@@ -1,12 +1,17 @@
+#include <chrono>
+
+#include <ament_index_cpp/get_package_prefix.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <geometric_shapes/mesh_operations.h>
 #include <geometric_shapes/shape_operations.h>
-#include <ros/package.h>
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <rclcpp/rclcpp.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
-visualization_msgs::Marker getEdgesMarker(const shapes::Mesh* mesh, int marker_id)
+using namespace std::chrono_literals;
+
+visualization_msgs::msg::Marker getEdgesMarker(const shapes::Mesh* mesh, int marker_id)
 {
-  visualization_msgs::Marker marker_edges;
+  visualization_msgs::msg::Marker marker_edges;
   shapes::constructMarkerFromShape(mesh, marker_edges, false);
   marker_edges.header.frame_id = "world";
   marker_edges.id = marker_id;
@@ -18,9 +23,9 @@ visualization_msgs::Marker getEdgesMarker(const shapes::Mesh* mesh, int marker_i
   return marker_edges;
 }
 
-visualization_msgs::Marker getFacesMarker(const shapes::Mesh* mesh, int marker_id)
+visualization_msgs::msg::Marker getFacesMarker(const shapes::Mesh* mesh, int marker_id)
 {
-  visualization_msgs::Marker marker_faces;
+  visualization_msgs::msg::Marker marker_faces;
   shapes::constructMarkerFromShape(mesh, marker_faces, true);
   marker_faces.header.frame_id = "world";
   marker_faces.id = marker_id;
@@ -34,20 +39,31 @@ visualization_msgs::Marker getFacesMarker(const shapes::Mesh* mesh, int marker_i
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "visualize");
-  ros::NodeHandle nh;
-  auto markers_pub = nh.advertise<visualization_msgs::MarkerArray>("marker", 10, true);
-  visualization_msgs::MarkerArray markers;
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<rclcpp::Node>("visualize");
+  auto qos = rclcpp::QoS(rclcpp::KeepLast(10)).transient_local();
+  auto markers_pub = node->create_publisher<visualization_msgs::msg::MarkerArray>("marker", qos);
+  visualization_msgs::msg::MarkerArray markers;
 
-  while (ros::ok())
+  // Declare parameters
+  node->declare_parameter<double>("scale", 1.0);
+  node->declare_parameter<double>("padding", 0.0);
+  std::string package_share_directory;
+  try {
+    package_share_directory = ament_index_cpp::get_package_share_directory("scale_pad_visualize");
+  } catch (const ament_index_cpp::PackageNotFoundError &e) {
+    throw std::runtime_error(e.what());
+  }
+  node->declare_parameter<std::string>("mesh", package_share_directory + "/stl/ros2.stl");
+
+  while (rclcpp::ok())
   {
-    // Load parameters
-    double scale = 1.0;
-    double padding = 0.0;
-    std::string mesh_file = ros::package::getPath("scale_pad_visualize") + "/stl/ros2.stl";
-    ros::param::get("~scale", scale);
-    ros::param::get("~padding", padding);
-    ros::param::get("~mesh", mesh_file);
+    // Get parameters
+    double scale, padding;
+    std::string mesh_file;
+    node->get_parameter<double>("scale", scale);
+    node->get_parameter<double>("padding", padding);
+    node->get_parameter<std::string>("mesh", mesh_file);
 
     unsigned marker_id = 0;
 
@@ -62,11 +78,9 @@ int main(int argc, char** argv)
     markers.markers.push_back(faces_marker);
     auto edges_marker = getEdgesMarker(mesh, marker_id++);
     markers.markers.push_back(edges_marker);
-    markers_pub.publish(markers);
+    markers_pub->publish(markers);
 
-    ros::Duration(0.2).sleep();
-    ros::spinOnce();
+    rclcpp::sleep_for(200ms);
+    rclcpp::spin_some(node);
   }
-
-  ros::spin();
 }

@@ -1,14 +1,14 @@
 <launch>
 
-  <arg name="mesh" default="$(find scale_pad_visualize)/stl/ros2.stl"/>
+  <arg name="mesh" default="$(find-pkg-share scale_pad_visualize)/stl/ros2.stl"/>
   <arg name="scale" default="1.0"/>
   <arg name="padding" default="0.0"/>
 
-  <node name="visualize" pkg="scale_pad_visualize" type="visualize">
-    <param name="mesh" value="$(arg mesh)"/>
-    <param name="scale" value="$(arg scale)"/>
-    <param name="padding" value="$(arg padding)"/>
+  <node name="visualize" pkg="scale_pad_visualize" exec="visualize">
+    <param name="mesh" value="$(var mesh)"/>
+    <param name="scale" value="$(var scale)"/>
+    <param name="padding" value="$(var padding)"/>
   </node>
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scale_pad_visualize)/rviz/visualize.rviz"/>
+  <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share scale_pad_visualize)/rviz/visualize.rviz"/>
 </launch>
